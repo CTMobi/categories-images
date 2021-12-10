@@ -208,24 +208,24 @@ class ZCategoriesImages
 
         global $wpdb;
 
-        // Convert and sanitize image url into md5 string.
-        $md5_image_src = md5( esc_url_raw( $image_src ) );
+        // Convert and sanitize image url into sha256 string.
+        $sha256_image_src = hash( 'sha256', esc_url_raw( $image_src ) );
 
-        // Retrieves the cache contents from the cache by a mixed md5 key name and a group, return mixed|false.
-        $id = wp_cache_get( 'attach_id_by_url_' . $md5_image_src, 'categories-images' );
+        // Retrieves the cache contents from the cache by a mixed sha256 key name and a group, return mixed|false.
+        $id_img = wp_cache_get( 'attach_id_by_url_' . $sha256_image_src, 'categories-images' );
 
-        if( false === $id ) {
+        if( false === $id_img ) {
             // Prepares a SQL query for safe execution and retrieves one variable from the database, return string|null.
             $query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid = %s", $image_src);
-            $id = $wpdb->get_var($query);
+            $id_img = $wpdb->get_var($query);
 
-            if( null !== $id ) {
+            if( null !== $id_img ) {
                 // Saves data in the cache with one hour expiration time.
-                wp_cache_set( 'attach_id_by_url_' . $md5_image_src, $id, 'categories-images', HOUR_IN_SECONDS );
+                wp_cache_set( 'attach_id_by_url_' . $sha256_image_src, $id_img, 'categories-images', HOUR_IN_SECONDS );
             }
         }
 
-        return $id;
+        return $id_img;
     }
 
     // get attachment ID by term id
